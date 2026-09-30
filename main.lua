@@ -17,6 +17,7 @@ local UIManager         = require("ui/uimanager")
 local WidgetContainer   = require("ui/widget/container/widgetcontainer")
 local logger            = require("logger")
 local _                 = require("i18n")
+local Sh                = lrequire("sh")
 
 require("i18n").extend(lrequire("i18n_fr"))
 
@@ -25,8 +26,10 @@ local OpdsDirPlugin = WidgetContainer:extend{
     is_doc_only = false,
 }
 
--- Decrypt path in-place using openssl. Key is written to a temp file to
--- avoid shell injection. Returns true on success.
+-- Decrypt path in-place using openssl. The key goes through a temp file and
+-- every path is shell-quoted: both come from outside the plugin (the catalogue
+-- picks the filename), so neither can be pasted into a command as-is.
+-- Returns true on success.
 local function decrypt_inplace(path, key)
     local key_file = os.tmpname()
     local f = io.open(key_file, "w")
@@ -36,17 +39,17 @@ local function decrypt_inplace(path, key)
 
     local tmp = path .. ".dec"
     local cmd = string.format(
-        "openssl enc -aes-256-cbc -pbkdf2 -d -pass file:'%s' -in '%s' -out '%s' 2>/dev/null",
-        key_file, path, tmp
+        "openssl enc -aes-256-cbc -pbkdf2 -d -pass file:%s -in %s -out %s 2>/dev/null",
+        Sh.quote(key_file), Sh.quote(path), Sh.quote(tmp)
     )
     local ok = os.execute(cmd) == 0
     os.remove(key_file)
 
     if ok then
-        os.execute(string.format("mv '%s' '%s'", tmp, path))
+        os.execute(string.format("mv %s %s", Sh.quote(tmp), Sh.quote(path)))
         logger.info("opdsdir: decrypted", path)
     else
-        os.execute(string.format("rm -f '%s'", tmp))
+        os.execute(string.format("rm -f %s", Sh.quote(tmp)))
         logger.warn("opdsdir: decryption failed for", path)
     end
     return ok
@@ -105,8 +108,8 @@ function OpdsDirPlugin:init()
                     fk:write(key)
                     fk:close()
                     local cmd = string.format(
-                        "openssl enc -aes-256-cbc -pbkdf2 -d -pass file:'%s' -in '%s' -out '%s' 2>/dev/null",
-                        key_file, enc_file, dec_file
+                        "openssl enc -aes-256-cbc -pbkdf2 -d -pass file:%s -in %s -out %s 2>/dev/null",
+                        Sh.quote(key_file), Sh.quote(enc_file), Sh.quote(dec_file)
                     )
                     if os.execute(cmd) == 0 then
                         local fd = io.open(dec_file, "r")
