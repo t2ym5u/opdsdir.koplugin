@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.2.1] - 2026-10-02
+## [1.2.2] - 2026-10-02
 
 ### Fixed
 - A book that was never encrypted no longer reports a failed decryption. A
@@ -12,6 +12,13 @@ All notable changes to this project will be documented in this file.
   `Decrypt.file` now returns a status alongside its result: `plaintext` when
   the file carries no `Salted__` header and there is nothing to do,
   `decrypted`, or `failed`. Only `failed` is worth telling the user about.
+
+- `_meta.lua` was published empty in 1.2.1: the release script truncated it
+  before reading it back. The release CI caught it -- it reads the version
+  from that file -- and failed before creating a release, so no broken archive
+  was ever published, but `main` served an empty `_meta.lua` for a few
+  minutes, which is what Plugin Manager fetches. 1.2.1 is skipped; its tag
+  exists but has no release.
 
 ## [1.2.0] - 2026-10-02
 
