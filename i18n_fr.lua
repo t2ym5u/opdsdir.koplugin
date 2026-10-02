@@ -11,4 +11,8 @@ return {
     ["Set download directory"]                                    = { fr = "Définir le dossier de téléchargement", es = "Definir carpeta de descarga", de = "Download-Ordner festlegen" },
     ["Set encryption key"]                                        = { fr = "Définir la clé de chiffrement", es = "Definir clave de cifrado", de = "Verschlüsselungsschlüssel festlegen" },
     ["Sync"]                                                       = { fr = "Synchroniser", es = "Sincronizar", de = "Synchronisieren" },
+    ["Could not decrypt this catalog. Check its encryption key."] = { fr = "Impossible de déchiffrer ce catalogue. Vérifiez sa clé de chiffrement.", es = "No se pudo descifrar este catálogo. Compruebe su clave de cifrado.", de = "Dieser Katalog konnte nicht entschlüsselt werden. Prüfen Sie seinen Schlüssel." },
+    ["This catalog is encrypted, but openssl is not available on this device."] = { fr = "Ce catalogue est chiffré, mais openssl n'est pas disponible sur cet appareil.", es = "Este catálogo está cifrado, pero openssl no está disponible en este dispositivo.", de = "Dieser Katalog ist verschlüsselt, aber openssl ist auf diesem Gerät nicht verfügbar." },
+    ["Could not decrypt:\n%1\n\nCheck the catalog's encryption key."] = { fr = "Impossible de déchiffrer :\n%1\n\nVérifiez la clé de chiffrement du catalogue.", es = "No se pudo descifrar:\n%1\n\nCompruebe la clave de cifrado del catálogo.", de = "Entschlüsselung fehlgeschlagen:\n%1\n\nPrüfen Sie den Schlüssel des Katalogs." },
+    ["Download directory cleared."] = { fr = "Dossier de téléchargement réinitialisé.", es = "Carpeta de descarga restablecida.", de = "Download-Ordner zurückgesetzt." },
 }
