@@ -65,8 +65,12 @@ opdsdir monkey-patches six functions of `OPDSBrowser`, once per session:
 | `editCatalogFromInput` | Carries folder and key across an edit of the catalog |
 | `onMenuHold` | Adds two new buttons to the long-press context menu |
 
-Decryption itself lives in `decrypt.lua`, which shells out to `openssl`. If no
-`openssl` binary is present the plugin says so rather than failing silently.
+Decryption itself lives in `decrypt.lua`. It uses libcrypto directly through
+LuaJIT's FFI — KOReader already bundles it and exposes it in
+`base/ffi/crypto.lua` — so nothing is written to disk and no shell command is
+run. The `openssl` binary is a fallback, used only if libcrypto cannot be
+loaded. If neither is available the plugin says so rather than failing
+silently.
 
 ---
 
@@ -74,8 +78,8 @@ Decryption itself lives in `decrypt.lua`, which shells out to `openssl`. If no
 
 - **Kobo only** — other devices are untested
 - **`onMenuHold` is replaced**, not wrapped — if KOReader adds buttons to that function in a future update, they will not appear until this plugin is updated
-- Requires an `openssl` binary on the device
-- The encryption key is stored in plaintext on the device, and is written to a temporary file for the duration of each decryption
+- The encryption key is stored in plaintext on the device (in `opds.lua`)
+- On the `openssl` fallback only, the key is also written to a temporary file for the duration of each decryption; the libcrypto path keeps it in memory
 - Git history of the server repo may contain unencrypted files from before encryption was enabled
 
 ---

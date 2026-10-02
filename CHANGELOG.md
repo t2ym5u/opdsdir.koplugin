@@ -2,6 +2,37 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0] - 2026-10-02
+
+### Changed
+- Decryption now runs in-process against libcrypto, which KOReader already
+  bundles and exposes through LuaJIT's FFI (`base/ffi/crypto.lua`). The
+  openssl binary is kept as a fallback and is used only when libcrypto cannot
+  be loaded, since `ffi.loadlib` pins a soname a future KOReader could move.
+  `Decrypt.backend()` reports which one is in use.
+
+  This removes, for the libcrypto path: the dependency on an openssl binary
+  being present at all, two temporary files per catalog and one per book, a
+  fork and exec per file, every shell command and therefore all of the
+  quoting -- and the part that actually mattered, **the passphrase being
+  written to a world-readable path under /tmp for the duration of each
+  decryption**. The key now stays in memory.
+
+  Books are streamed in 64 KB chunks rather than read whole, so peak memory no
+  longer tracks the size of the download.
+
+- A device with neither backend now says it cannot decrypt the catalog, rather
+  than naming openssl.
+
+### Added
+- `test_decrypt_ffi.lua`, which decrypts real `openssl enc -aes-256-cbc
+  -pbkdf2` output through the libcrypto backend: block-aligned and unaligned
+  plaintexts, a payload spanning several chunks, a wrong key, a missing
+  `Salted__` header and a truncated body. It is a plain LuaJIT script rather
+  than a busted spec because busted here runs on Lua 5.5, which has no FFI and
+  so cannot see this path at all; `test_decrypt_spec.lua` keeps covering the
+  same surface through the CLI backend.
+
 ## [1.1.0] - 2026-10-02
 
 ### Fixed

@@ -102,7 +102,7 @@ function OpdsDirPlugin:init()
             -- an empty catalog, which says nothing about what went wrong.
             warn(Decrypt.available()
                 and _("Could not decrypt this catalog. Check its encryption key.")
-                or  _("This catalog is encrypted, but openssl is not available on this device."))
+                or  _("This catalog is encrypted, but this device cannot decrypt it."))
             return nil
         end
         return data
