@@ -31,6 +31,11 @@ KOReader's built-in OPDS browser uses a single global download folder for all ca
 Long-press a catalog in the OPDS browser → **Set download directory** → choose a folder.
 
 Downloads from that catalog will be saved there instead of the global default.
+Long-press that same button to clear the folder and fall back to KOReader's
+global one.
+
+The folder and the key survive an **Edit** of the catalog, and a sync uses each
+catalog's own folder and key rather than those of the last one opened.
 
 ### Set an encryption key
 
@@ -48,7 +53,7 @@ Once set:
 
 ## How it works
 
-opdsdir monkey-patches four functions of `OPDSBrowser` at startup:
+opdsdir monkey-patches six functions of `OPDSBrowser`, once per session:
 
 | Function patched | What changes |
 |---|---|
@@ -56,7 +61,12 @@ opdsdir monkey-patches four functions of `OPDSBrowser` at startup:
 | `onMenuSelect` | Captures folder and key when entering a catalog |
 | `fetchFeed` | Decrypts `*.enc` catalog XML before parsing |
 | `downloadFile` | Decrypts downloaded files before handing them to KOReader |
+| `fillPendingSyncs` | Applies the right folder and key to each synced catalog |
+| `editCatalogFromInput` | Carries folder and key across an edit of the catalog |
 | `onMenuHold` | Adds two new buttons to the long-press context menu |
+
+Decryption itself lives in `decrypt.lua`, which shells out to `openssl`. If no
+`openssl` binary is present the plugin says so rather than failing silently.
 
 ---
 
@@ -64,7 +74,8 @@ opdsdir monkey-patches four functions of `OPDSBrowser` at startup:
 
 - **Kobo only** — other devices are untested
 - **`onMenuHold` is replaced**, not wrapped — if KOReader adds buttons to that function in a future update, they will not appear until this plugin is updated
-- The encryption key is stored in plaintext on the device
+- Requires an `openssl` binary on the device
+- The encryption key is stored in plaintext on the device, and is written to a temporary file for the duration of each decryption
 - Git history of the server repo may contain unencrypted files from before encryption was enabled
 
 ---

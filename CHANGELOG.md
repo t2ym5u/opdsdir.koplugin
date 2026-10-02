@@ -2,6 +2,49 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0] - 2026-10-02
+
+### Fixed
+- `require("i18n")` -> `lrequire("i18n")`. `package.loaded` is keyed by module
+  name alone, so the whole device shares one `"i18n"` slot and the first plugin
+  loaded wins it. This plugin's own, self-contained `i18n.lua` was therefore
+  dead code, and `extend()` merged our strings into the game plugins' shared
+  table instead: our `Clear` ("Effacer") overwrote theirs ("Effacer tout"),
+  which is already what `Erase` renders, leaving two identical buttons side by
+  side in every game.
+- Editing a catalog no longer drops its download folder and encryption key.
+  `editCatalogFromInput` rebuilds the server entry from the six fields its
+  dialog shows and assigns it over the old one, so correcting a typo in a URL
+  silently discarded both of ours.
+- The patches are applied once instead of on every plugin instance. ReaderUI
+  and FileManager each build their own, and rebuild it on every document open
+  and close, so the wrappers were stacking on top of each other for the whole
+  session.
+- Sync uses each catalog's own folder and key. `fillPendingSyncs` sets the
+  per-catalog username, password and title itself and knew nothing about ours,
+  so "Sync all catalogs" downloaded everything into the folder of whichever
+  catalog had been opened last and decrypted it with that one's key.
+- A failed decryption now says so. The callback used to fire regardless, so a
+  wrong key surfaced as KOReader refusing to open the book, and an encrypted
+  catalog simply appeared empty.
+- `catalog.xml.enc?v=2` is recognised as encrypted; the query string is
+  stripped before the `.enc` test.
+- The decryption temporary is a fixed short name in the destination folder
+  rather than `<path>.dec`, which could cross the 255-character VFAT limit
+  given that KOReader already allows 240-character filenames.
+
+### Added
+- `decrypt.lua`, holding the AES-256-CBC implementation behind `available()`,
+  `file()` and `data()`, with `test_decrypt_spec.lua` round-tripping real
+  `openssl enc -aes-256-cbc -pbkdf2` output through it -- including a wrong
+  key, a filename full of shell metacharacters, and a check that no temporary
+  is left in the download folder. There was no test of the decryption path at
+  all before this.
+- A check that an `openssl` binary actually exists, reported to the user
+  instead of looking like a bad passphrase.
+- Long-press the download-folder button to clear it and fall back to
+  KOReader's global folder.
+
 ## [1.0.4] - 2026-09-30
 
 ### Fixed
