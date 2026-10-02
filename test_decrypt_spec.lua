@@ -72,6 +72,30 @@ describe("decrypt", function()
         os.remove(enc)
     end)
 
+    it("reports a plain file as plaintext rather than a failure", function()
+        -- A catalogue can mix encrypted and plain books: the server only
+        -- encrypts what it was given a key for.
+        local path = tmp()
+        write(path, "PK\003\004 not encrypted at all")
+        local ok, status = Decrypt.file(path, KEY)
+        assert.is_true(ok)
+        assert.are.equal("plaintext", status)
+        assert.are.equal("PK\003\004 not encrypted at all", read(path))
+        os.remove(path)
+    end)
+
+    it("reports statuses for decrypted and failed", function()
+        local enc = encrypt("payload", KEY)
+        local _, ok_status = Decrypt.file(enc, KEY)
+        assert.are.equal("decrypted", ok_status)
+        os.remove(enc)
+
+        local enc2 = encrypt("payload", KEY)
+        local _, bad_status = Decrypt.file(enc2, "not the key")
+        assert.are.equal("failed", bad_status)
+        os.remove(enc2)
+    end)
+
     it("leaves no temporary behind in the download folder", function()
         local dir = os.tmpname() .. ".d"
         assert(succeeded(os.execute("mkdir -p '" .. dir .. "'")))

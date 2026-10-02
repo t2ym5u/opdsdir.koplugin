@@ -107,6 +107,29 @@ do
 end
 
 do
+    -- A catalogue can mix encrypted and plain books; a plain one must be left
+    -- alone and reported as such, not as a failure.
+    local plain_path = os.tmpname()
+    write(plain_path, "PK\003\004 not encrypted at all")
+    local ok, status = Decrypt.file(plain_path, KEY)
+    check("file() reports a plain file as plaintext", ok == true and status == "plaintext",
+          tostring(ok) .. "/" .. tostring(status))
+    check("file() leaves a plain file untouched",
+          read(plain_path) == "PK\003\004 not encrypted at all")
+    os.remove(plain_path)
+
+    local e2 = encrypt("payload", KEY)
+    local _, st2 = Decrypt.file(e2, KEY)
+    check("file() reports a decrypted file as decrypted", st2 == "decrypted", tostring(st2))
+    os.remove(e2)
+
+    local e3 = encrypt("payload", KEY)
+    local _, st3 = Decrypt.file(e3, "wrong")
+    check("file() reports a wrong key as failed", st3 == "failed", tostring(st3))
+    os.remove(e3)
+end
+
+do
     local enc = encrypt("payload", KEY)
     local blob = read(enc)
     check("rejects a missing Salted__ header", Decrypt.data(blob:sub(9), KEY) == nil)

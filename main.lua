@@ -118,7 +118,11 @@ function OpdsDirPlugin:init()
             or self.root_catalog_encrypt_key
         if key and key ~= "" then
             local wrapped = function(path)
-                if not Decrypt.file(path, key) then
+                -- A catalog can mix encrypted and plain books, so "nothing to
+                -- decrypt" is a normal outcome and only "failed" is worth a
+                -- message.
+                local _ok, status = Decrypt.file(path, key)
+                if status == "failed" then
                     warn(T(_("Could not decrypt:\n%1\n\nCheck the catalog's encryption key."),
                         BD.filepath(path)))
                 end

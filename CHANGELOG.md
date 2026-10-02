@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.1] - 2026-10-02
+
+### Fixed
+- A book that was never encrypted no longer reports a failed decryption. A
+  catalog can hold both -- the server encrypts only what it was given a key
+  for, and reading-pipeline currently ships at least one plain EPUB -- so with
+  a key set on the catalog, every plain download raised "Could not decrypt".
+  `Decrypt.file` now returns a status alongside its result: `plaintext` when
+  the file carries no `Salted__` header and there is nothing to do,
+  `decrypted`, or `failed`. Only `failed` is worth telling the user about.
+
 ## [1.2.0] - 2026-10-02
 
 ### Changed
