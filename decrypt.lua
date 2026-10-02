@@ -241,11 +241,28 @@ function Decrypt.available()
     return b ~= nil
 end
 
--- Decrypt `path` in place. Returns true on success; on failure the original
--- file is left untouched.
+-- Does this file carry the openssl "Salted__" header? A catalogue can mix
+-- encrypted and plain books -- the server only encrypts what it was given a
+-- key for -- and a plain EPUB must not be reported as a failed decryption.
+local function is_encrypted(path)
+    local f = io.open(path, "rb")
+    if not f then return false end
+    local head = f:read(#MAGIC)
+    f:close()
+    return head == MAGIC
+end
+
+-- Decrypt `path` in place. Returns ok, status -- status is "decrypted",
+-- "plaintext" (the file was never encrypted, nothing to do) or "failed". On
+-- failure the original file is left untouched.
 function Decrypt.file(path, key)
+    if not is_encrypted(path) then
+        logger.info("opdsdir: not encrypted, left as is:", path)
+        return true, "plaintext"
+    end
+
     local backend = Decrypt.backend()
-    if not backend then return false end
+    if not backend then return false, "failed" end
 
     -- A fixed short name in the same directory, rather than path .. ".dec":
     -- KOReader already allows filenames up to 240 characters, so a suffix can
@@ -274,13 +291,13 @@ function Decrypt.file(path, key)
         os.remove(path)
         if os.rename(tmp, path) then
             logger.info("opdsdir: decrypted", path, "via", backend)
-            return true
+            return true, "decrypted"
         end
         logger.warn("opdsdir: could not replace", path)
     end
     os.remove(tmp)
     logger.warn("opdsdir: decryption failed for", path)
-    return false
+    return false, "failed"
 end
 
 -- Decrypt an in-memory string (the catalogue XML). Returns nil on failure, so
