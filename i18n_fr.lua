@@ -1,6 +1,6 @@
 return {
     ["Cancel"]                                                    = { fr = "Annuler", es = "Cancelar", de = "Abbrechen" },
-    ["Clear"]                                                     = { fr = "Effacer", es = "Borrar", de = "Löschen" },
+    ["Clear key"]                                                 = { fr = "Effacer la clé", es = "Borrar la clave", de = "Schlüssel löschen" },
     ["Delete"]                                                    = { fr = "Supprimer", es = "Eliminar", de = "Löschen" },
     ["Delete OPDS catalog?"]                                      = { fr = "Supprimer le catalogue OPDS ?", es = "¿Eliminar catálogo OPDS?", de = "OPDS-Katalog löschen?" },
     ["Edit"]                                                      = { fr = "Modifier", es = "Editar", de = "Bearbeiten" },

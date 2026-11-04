@@ -25,7 +25,9 @@ local T                 = require("ffi/util").template
 -- is not part of the game-common family, so taking that slot -- or being
 -- handed someone else's module and merging our strings into their table --
 -- is how our "Clear" ends up overwriting theirs.
-local Decrypt = lrequire("decrypt")
+-- decrypt.lua (and the crypto library it binds) loads the first time an
+-- encrypted catalog or book is met, not with the plugin at KOReader startup.
+local function Decrypt() return lrequire("decrypt") end
 local i18n    = lrequire("i18n")
 local _       = i18n
 
@@ -93,14 +95,14 @@ function OpdsDirPlugin:init()
         if data and key and key ~= ""
             and item_url:gsub("[?#].*$", ""):match("%.enc$")
         then
-            local plain = Decrypt.data(data, key)
+            local plain = Decrypt().data(data, key)
             if plain then
                 logger.info("opdsdir: catalog decrypted")
                 return plain
             end
             -- Returning the ciphertext would get parsed as XML and surface as
             -- an empty catalog, which says nothing about what went wrong.
-            warn(Decrypt.available()
+            warn(Decrypt().available()
                 and _("Could not decrypt this catalog. Check its encryption key.")
                 or  _("This catalog is encrypted, but this device cannot decrypt it."))
             return nil
@@ -121,7 +123,7 @@ function OpdsDirPlugin:init()
                 -- A catalog can mix encrypted and plain books, so "nothing to
                 -- decrypt" is a normal outcome and only "failed" is worth a
                 -- message.
-                local _ok, status = Decrypt.file(path, key)
+                local _ok, status = Decrypt().file(path, key)
                 if status == "failed" then
                     warn(T(_("Could not decrypt:\n%1\n\nCheck the catalog's encryption key."),
                         BD.filepath(path)))
@@ -238,7 +240,7 @@ function OpdsDirPlugin:init()
                         callback = function() UIManager:close(key_dialog) end,
                     },
                     {
-                        text = _("Clear"),
+                        text = _("Clear key"),
                         callback = function()
                             if server then
                                 server.encrypt_key = nil

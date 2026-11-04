@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.3] - 2026-11-04
+
+### Fixed – translations
+- The encryption-key dialog's button now reads "Clear key" ("Effacer la
+  clé"). It shared the English key "Clear" with the game plugins, which
+  translate it "Effacer tout" — same word, two translations in the one
+  table every plugin shares.
+
+### Changed
+- Uses less memory: the decryption code loads the first time an encrypted
+  catalog or book is met, not when KOReader starts.
+
 ## [1.2.2] - 2026-10-02
 
 ### Fixed
