@@ -1,4 +1,6 @@
 return {
+    -- _meta.lua description (shown by Plugin Manager, via the manifest)
+    ["Long-press a catalog to assign a dedicated download folder."] = { fr = "Appui long sur un catalogue pour lui attribuer son propre dossier de téléchargement.", es = "Mantén pulsado un catálogo para asignarle su propia carpeta de descargas.", de = "Einen Katalog lange drücken, um ihm einen eigenen Download-Ordner zuzuweisen." },
     ["Cancel"]                                                    = { fr = "Annuler", es = "Cancelar", de = "Abbrechen" },
     ["Clear key"]                                                 = { fr = "Effacer la clé", es = "Borrar la clave", de = "Schlüssel löschen" },
     ["Delete"]                                                    = { fr = "Supprimer", es = "Eliminar", de = "Löschen" },

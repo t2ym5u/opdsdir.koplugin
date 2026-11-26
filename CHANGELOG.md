@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.4] - 2026-11-26
+
+### Changed
+- Plugin Manager shows this plugin's description in French, Spanish and
+  German: its translations are now in i18n_fr.lua, where the catalogue
+  (manifest.json) picks them up.
+
 ## [1.2.3] - 2026-11-04
 
 ### Fixed – translations
